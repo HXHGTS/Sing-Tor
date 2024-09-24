@@ -24,7 +24,7 @@ jobs:
     - name: Create release folder
       run: sudo mkdir release
 
-  build-v1.7.8:
+  build_v178:
     runs-on: ubuntu-20.04
     needs: build-linux-amd64-tor
     steps:
@@ -36,7 +36,7 @@ jobs:
         sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
         sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION-amd64v3
 
-  build-v1.8.14:
+  build_v1814:
     runs-on: ubuntu-20.04
     needs: build-linux-amd64-tor
     steps:
@@ -48,7 +48,7 @@ jobs:
         sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
         sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION-amd64v3
 
-  build-v1.9.6:
+  build_v196:
     runs-on: ubuntu-20.04
     needs: build-linux-amd64-tor
     steps:
@@ -60,9 +60,9 @@ jobs:
         sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
         sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION-amd64v3
 
-  push-files:
+  push_files:
     runs-on: ubuntu-20.04
-    needs: [build-v1.7.8, build-v1.8.14, build-v1.9.6]
+    needs: [build_v178, build_v1814, build_v196]
     steps:
     - name: Push Files
       run: |
