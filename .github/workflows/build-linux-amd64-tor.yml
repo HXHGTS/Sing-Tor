@@ -21,9 +21,6 @@ jobs:
         sudo apt-get install -y curl gcc sed libevent-dev libevent-openssl-2.1-7 openssl libssl-dev zlib1g-dev autoconf file automake
         export PKG_CONFIG_PATH=/usr/lib/pkgconfig:$PKG_CONFIG_PATH
 
-    - name: Create release folder
-      run: sudo mkdir release
-
   build_v178:
     runs-on: ubuntu-20.04
     needs: build-linux-amd64-tor
@@ -32,9 +29,14 @@ jobs:
       run: |
         VERSION='v1.7.8'
         sudo env GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-        sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION
+        sudo mv -f /root/go/bin/sing-box ./sing-box-$VERSION
         sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-        sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION-amd64v3
+        sudo mv -f /root/go/bin/sing-box ./sing-box-$VERSION-amd64v3
+    - name: Upload v1.7.8 artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: sing-box-v1.7.8
+        path: ./sing-box-v1.7.8*
 
   build_v1814:
     runs-on: ubuntu-20.04
@@ -44,9 +46,14 @@ jobs:
       run: |
         VERSION='v1.8.14'
         sudo env GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-        sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION
+        sudo mv -f /root/go/bin/sing-box ./sing-box-$VERSION
         sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-        sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION-amd64v3
+        sudo mv -f /root/go/bin/sing-box ./sing-box-$VERSION-amd64v3
+    - name: Upload v1.8.14 artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: sing-box-v1.8.14
+        path: ./sing-box-v1.8.14*
 
   build_v196:
     runs-on: ubuntu-20.04
@@ -56,14 +63,34 @@ jobs:
       run: |
         VERSION='v1.9.6'
         sudo env GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-        sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION
+        sudo mv -f /root/go/bin/sing-box ./sing-box-$VERSION
         sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-        sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION-amd64v3
+        sudo mv -f /root/go/bin/sing-box ./sing-box-$VERSION-amd64v3
+    - name: Upload v1.9.6 artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: sing-box-v1.9.6
+        path: ./sing-box-v1.9.6*
 
   push_files:
     runs-on: ubuntu-20.04
     needs: [build_v178, build_v1814, build_v196]
     steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: sing-box-v1.7.8
+        path: ./release
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: sing-box-v1.8.14
+        path: ./release
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: sing-box-v1.9.6
+        path: ./release
     - name: Push Files
       run: |
         sudo chown -R $USER:$USER ./release
