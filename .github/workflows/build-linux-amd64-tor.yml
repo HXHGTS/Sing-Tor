@@ -1,17 +1,11 @@
 name: Build LINUX AMD64 TOR Binary
 
 on:
-  # push:
-  #   branches:
-  #   - main
-  # schedule:
-  # - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
   build-linux-amd64-tor:
     runs-on: ubuntu-20.04
-
     steps:
     - name: Checkout code
       uses: actions/checkout@main
@@ -30,6 +24,10 @@ jobs:
     - name: Create release folder
       run: sudo mkdir release
 
+  build-v1.7.8:
+    runs-on: ubuntu-20.04
+    needs: build-linux-amd64-tor
+    steps:
     - name: Build v1.7.8 binary
       run: |
         VERSION='v1.7.8'
@@ -38,6 +36,10 @@ jobs:
         sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
         sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION-amd64v3
 
+  build-v1.8.14:
+    runs-on: ubuntu-20.04
+    needs: build-linux-amd64-tor
+    steps:
     - name: Build v1.8.14 binary
       run: |
         VERSION='v1.8.14'
@@ -46,6 +48,10 @@ jobs:
         sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
         sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION-amd64v3
 
+  build-v1.9.6:
+    runs-on: ubuntu-20.04
+    needs: build-linux-amd64-tor
+    steps:
     - name: Build v1.9.6 binary
       run: |
         VERSION='v1.9.6'
@@ -54,22 +60,10 @@ jobs:
         sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
         sudo mv -f /root/go/bin/sing-box ./release/sing-box-$VERSION-amd64v3
 
-    # - name: Build Beta binary
-    #   run: |
-    #     VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | grep 'tag_name' | head -n 1 | awk -F\" '{print $4}')
-    #     sudo env GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-    #     sudo mv -f /root/go/bin/sing-box ./release/sing-box-beta
-    #     sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-    #     sudo mv -f /root/go/bin/sing-box ./release/sing-box-beta-amd64v3
-
-    # - name: Build Current binary
-    #   run: |
-    #     VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | grep 'tag_name' | grep -v 'alpha' | grep -v 'rc' | head -n 1 | awk -F\" '{print $4}')
-    #     sudo env GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-    #     sudo mv -f /root/go/bin/sing-box ./release/sing-box
-    #     sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-    #     sudo mv -f /root/go/bin/sing-box ./release/sing-box-amd64v3
-
+  push-files:
+    runs-on: ubuntu-20.04
+    needs: [build-v1.7.8, build-v1.8.14, build-v1.9.6]
+    steps:
     - name: Push Files
       run: |
         sudo chown -R $USER:$USER ./release
