@@ -55,26 +55,9 @@ jobs:
         name: sing-box-v1.8.14
         path: ./sing-box-v1.8.14*
 
-  build_v196:
-    runs-on: ubuntu-20.04
-    needs: build-linux-amd64-tor
-    steps:
-    - name: Build v1.9.6 binary
-      run: |
-        VERSION='v1.9.6'
-        sudo env GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-        sudo mv -f /root/go/bin/sing-box ./sing-box-$VERSION
-        sudo env GOOS=linux GOARCH=amd64 GOAMD64=v3 CGO_ENABLED=1 go install -ldflags "-X github.com/sagernet/sing-box/constant.Version=$VERSION" -v -tags ${{ vars.TAGS }} github.com/sagernet/sing-box/cmd/sing-box@$VERSION
-        sudo mv -f /root/go/bin/sing-box ./sing-box-$VERSION-amd64v3
-    - name: Upload v1.9.6 artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: sing-box-v1.9.6
-        path: ./sing-box-v1.9.6*
-
   push_files:
     runs-on: ubuntu-20.04
-    needs: [build_v178, build_v1814, build_v196]
+    needs: [build_v178, build_v1814]
     steps:
     - name: Checkout code
       uses: actions/checkout@main
@@ -88,11 +71,6 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: sing-box-v1.8.14
-        path: ./release
-    - name: Download artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: sing-box-v1.9.6
         path: ./release
     - name: Push Files
       run: |
